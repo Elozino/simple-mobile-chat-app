@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "expo-test-app",
-    "slug": "expo-test-app",
+    "name": "simple-chat-app",
+    "slug": "simple-chat-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
