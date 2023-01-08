@@ -1,6 +1,6 @@
 // @refresh reset
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Button,
   LogBox,
@@ -52,9 +52,17 @@ export default function App() {
           return { ...message, createdAt: message.createdAt.toDate() };
         })
         .sort((a, b) => b.createdAt.getTime() - a.createdAt().getTime());
-      setMessages(messagesFirestore);
+      appendMessages(messagesFirestore);
     });
+    return () => unsubscribe;
   }, []);
+
+  const appendMessages = useCallback(
+    (messages) => {
+      setMessages((prevMsg) => GiftedChat.append(prevMsg, messages));
+    },
+    [messages]
+  );
 
   async function handleSend(messages) {
     const writes = messages.map((m) => addDoc(chatsRef, m));

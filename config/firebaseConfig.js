@@ -1,14 +1,14 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import {
-  apiKey,
-  authDomain,
-  projectId,
-  storageBucket,
-  messagingSenderId,
-  appId,
-  measurementId,
-} from "@env";
+// import {
+//   apiKey,
+//   authDomain,
+//   projectId,
+//   storageBucket,
+//   messagingSenderId,
+//   appId,
+//   measurementId,
+// } from "@env";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAMmJb8s480zWdT1tFra_uJzNaG0Su46s4",
