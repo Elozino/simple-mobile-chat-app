@@ -11,14 +11,15 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { db } from "./config/firebaseConfig";
-// import { collection, getDocs } from "firebase/firestore";
+import { addDoc, collection, getDocs, onSnapshot } from "firebase/firestore";
+import { GiftedChat } from "react-native-gifted-chat";
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({});
   const [name, setName] = useState("");
   const [messages, setMessages] = useState([]);
 
-  // const chatsRef = collection(db, "chats");
+  const chatsRef = collection(db, "chats");
 
   async function readUser() {
     const user = await AsyncStorage.getItem("user");
@@ -39,21 +40,28 @@ export default function App() {
 
   useEffect(() => {
     readUser();
-    // const unsubscribe = getDocs(chatsRef).then((snapshot) => {
-    //   let collection = [];
-    //   snapshot.docs.forEach((doc) => {
-    //     collection.push({
-    //       ...doc.data(),
-    //       // createdAt: doc.data().createdAt.toDate(),
-    //       id: doc.id,
-    //     });
-    //   });
-      // collection.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-      // setMessages(collection);
-    // });
+    // listen to real time changes
+    const unsubscribe = onSnapshot(chatsRef, (snapshot) => {
+      const messagesFirestore = snapshot
+        .docChanges()
+        .filter(({ type }) => {
+          type == "added";
+        })
+        .map(({ doc }) => {
+          const message = doc.data();
+          return { ...message, createdAt: message.createdAt.toDate() };
+        })
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt().getTime());
+      setMessages(messagesFirestore);
+    });
   }, []);
 
-  if (!user) {
+  async function handleSend(messages) {
+    const writes = messages.map((m) => addDoc(chatsRef, m));
+    await Promise.all(writes);
+  }
+
+  if (JSON.stringify(user) === "{}") {
     return (
       <View style={styles.container}>
         <TextInput
@@ -68,11 +76,10 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text>Comfort</Text>
-      <Text>Open up App.js to start working on your app!</Text>
+    <>
+      <GiftedChat messages={messages} user={user} onSend={handleSend} />
       <StatusBar style="auto" />
-    </View>
+    </>
   );
 }
 
